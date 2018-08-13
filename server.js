@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const flash = require('connect-flash');
+const path = require('path');
 const firebase = require('firebase');
 const config = require('./config/firebase');
 
@@ -59,6 +60,10 @@ app.get('/logout', (req, res) => {
   }).catch((error) => {
     res.json('error');
   });
+});
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '/client/public/index.html'));
 });
 
 const port = process.env.PORT || 5000;
