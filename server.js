@@ -10,6 +10,8 @@ const { check, validationResult } = require('express-validator/check');
 
 const app = express();
 
+app.use(express.static(path.join(__dirname, 'client/public')));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
