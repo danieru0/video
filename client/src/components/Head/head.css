@@ -1,0 +1,22 @@
+.head {
+    width: 100%;
+    height: calc(100vh - 60px);
+    position: relative;
+    top: 60px;
+    display: flex;
+    justify-content: center;
+}
+
+a {
+    height: 0px;
+}
+
+.wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding-top: 30px;
+    width: 1030px;
+    height: 100%;
+    box-sizing: border-box;
+}

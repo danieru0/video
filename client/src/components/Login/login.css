@@ -1,0 +1,50 @@
+.center {
+    width: 100%;
+    height: calc(100vh - 60px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.form-login {
+    display: flex;
+    position: relative;
+}
+
+.form-login input {
+    margin-right: 10px;
+}
+
+.inputs-group {
+    position: relative;
+}
+
+.form-login span {
+    position: absolute;
+    left: 4px;
+    bottom: -8px;
+}
+
+.form-login button {
+    transition: 0.1s;
+}
+
+.form-login button:disabled {
+    background-color: lightgrey;
+    border-color: black;
+}
+
+.form-login button:disabled:hover {
+    background-color: lightgrey;
+    border-color: black;
+}
+
+.error-message {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -40px;
+    margin: auto;
+    text-align: center;
+}
