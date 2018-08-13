@@ -53,6 +53,14 @@ app.post('/register', (req, res) => {
   });
 });
 
-const port = 5000;
+app.get('/logout', (req, res) => {
+  firebase.auth().signOut().then(() => {
+    res.json('success');
+  }).catch((error) => {
+    res.json('error');
+  });
+});
+
+const port = process.env.PORT || 5000;
 
 app.listen(port, () => `Server running on port ${port}`);

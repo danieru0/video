@@ -22,9 +22,18 @@ class Guest extends Component {
 }
 
 class User extends Component {
+    login = (name) => {
+        return name.split("@")[0];
+    }
     render() {
+        const {name} = this.props;
         return (
             <ul>
+                <li>
+                    <Link to="/profile">
+                        {this.login(name)}
+                    </Link>
+                </li>
                 <li>
                     <Link to="/logout">
                         Logout
@@ -52,12 +61,11 @@ class NavTop extends Component {
             });
     }
     render() {
-        //const { user } = this.props;
         return (
             <nav className="topNav">
                 {   
                     this.state.user ? (
-                        <User />
+                        <User name={this.state.user.email}/>
                     ) : (
                         <Guest />
                     )

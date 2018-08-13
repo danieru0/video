@@ -30,6 +30,15 @@ class App extends Component {
       return false;
     }
   }
+  logout = () => {
+    if (this.state.user) {
+      fetch('/logout')
+        .then(res => res.json())
+        .then(res => {
+          window.location.href = '/';
+      });
+    }
+  }
   render() {
     return (
         <BrowserRouter>
@@ -40,6 +49,7 @@ class App extends Component {
               <Route exact path="/" component={Head}/>
               <Route path="/login" render={() => (this.isLoggedIn() ? <Redirect to="/"/> : <Login />)}/>
               <Route path="/register" render={() => (this.isLoggedIn() ? <Redirect to="/"/> : <Register />)}/>
+              <Route path="/logout" render={() => (this.isLoggedIn() ? this.logout() : <Redirect to="/"/>)}/>
             </Switch>
           </div>
         </BrowserRouter>
