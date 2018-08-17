@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import firebase from '../../config/firebase';
 import Preloader from '../Preloader/preloader';
 import './login.css';
 
@@ -55,21 +56,10 @@ class Login extends Component {
     handleSubmit = (e) => {
         e.preventDefault();
         this.setState({formSubmitted: 'success'});
-        fetch('/login', {
-            method: 'post',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                "email": this.state.email,
-                "password": this.state.password
-            }),
-        }).then(res => res.json())
-          .then(res => {
-                if (res === 'success') {
-                    window.location.href = '/';
-                } else if (res === 'error') {
-                    console.log('error');
-                    this.setState({formSubmitted: 'Fail: Wrong password or email!'});
-                }
+        firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password).then(() => {
+            window.location.href = '/';
+        }).catch(() => {
+            this.setState({formSubmitted: 'Fail: Wrong password or email!'});
         });
     }
     ifWrong = () => {

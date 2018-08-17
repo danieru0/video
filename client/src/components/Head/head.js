@@ -6,7 +6,8 @@ class Head extends Component {
     constructor() {
         super();
         this.state = {
-            image: []
+            image: [],
+            idk: []
         };
     }
     /*componentDidMount() {
@@ -18,6 +19,16 @@ class Head extends Component {
                     image: res
                 });
             });
+    }*/
+    /*componentDidMount() {
+        fetch('api/all-videos')
+            .then(res => res.json())
+            .then((res) => {
+                console.log(res);
+                this.setState({
+                    idk: res
+                })
+            })
     }*/
     render() {
         return (

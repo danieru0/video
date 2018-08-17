@@ -5,6 +5,8 @@ import Head from './components/Head/head';
 import SideNav from './components/SideNav/sidenav';
 import Login from './components/Login/login';
 import Register from './components/Register/register';
+import Video from './components/AddVideo/addvideo';
+import firebase from './config/firebase';
 
 class App extends Component {
   constructor() {
@@ -14,14 +16,12 @@ class App extends Component {
       logged: false
     };
   }
-  componentDidMount() {
-    fetch('api/user')
-      .then(res => res.json())
-      .then(res => {
-        this.setState({
-          user: res
-        });
-    });
+  componentWillMount() {
+    firebase.auth().onAuthStateChanged((user) => {
+      this.setState({
+        user: user
+      })
+    })
   }
   isLoggedIn = () => {
     if (this.state.user) {
@@ -32,11 +32,9 @@ class App extends Component {
   }
   logout = () => {
     if (this.state.user) {
-      fetch('/logout')
-        .then(res => res.json())
-        .then(res => {
-          window.location.href = '/';
-      });
+      firebase.auth().signOut().then(() => {
+        window.location.href = '/';
+      })
     }
   }
   render() {
@@ -49,6 +47,7 @@ class App extends Component {
               <Route exact path="/" component={Head}/>
               <Route path="/login" render={() => (this.isLoggedIn() ? <Redirect to="/"/> : <Login />)}/>
               <Route path="/register" render={() => (this.isLoggedIn() ? <Redirect to="/"/> : <Register />)}/>
+              <Route path="/add-video" render={() => (this.isLoggedIn() ? <Video />: <Redirect to="/"/>)}/>
               <Route path="/logout" render={() => (this.isLoggedIn() ? this.logout() : <Redirect to="/"/>)}/>
             </Switch>
           </div>

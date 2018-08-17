@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import firebase from '../../config/firebase';
 import './navTop.css';
 
 class Guest extends Component {
@@ -35,6 +36,11 @@ class User extends Component {
                     </Link>
                 </li>
                 <li>
+                    <Link to="/add-video">
+                        Add video
+                    </Link>
+                </li>
+                <li>
                     <Link to="/logout">
                         Logout
                     </Link>
@@ -52,13 +58,11 @@ class NavTop extends Component {
         }
     }
     componentDidMount() {
-        fetch('api/user')
-        .then(res => res.json())
-        .then(res => {
-                this.setState({
-                    user: res
-                });
-            });
+        firebase.auth().onAuthStateChanged((user) => {
+            this.setState({
+              user: user
+            })
+          })
     }
     render() {
         return (

@@ -3,10 +3,9 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const flash = require('connect-flash');
 const path = require('path');
-const firebase = require('firebase');
-const config = require('./config/firebase');
-
-const { check, validationResult } = require('express-validator/check');
+const fs = require('fs');
+const multer = require('multer');
+const uuidv4 = require('uuid/v4');
 
 const app = express();
 
@@ -18,19 +17,22 @@ app.use(cookieParser());
 
 app.use(flash());
 
-//firebase config
-firebase.initializeApp(config);
-
 //dropbox config
 require('isomorphic-fetch');
 const Dropbox = require('dropbox').Dropbox;
 const dbx = new Dropbox({ accessToken: 'CV09yugEd2AAAAAAAAAADmcjkJ-SeJlYCq7aFx0UlxVuGbUoZWeLcP0adKRikugV' });
 
-//api for getting user informations
-app.get('/api/user', (req, res) => {
-  const user = firebase.auth().currentUser;
-  res.json(user);
-});
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, './videos');
+  },
+  filename: (req, file, cb) => {
+    //cb(null, `${file.originalname}`);
+    cb(null, `${uuidv4()}${path.extname(file.originalname)}`);
+  }
+})
+
+const upload = multer({ storage });
 
 //api for getting videos miniatures
 app.get('/api/miniatures', (req, res) => {
@@ -40,34 +42,31 @@ app.get('/api/miniatures', (req, res) => {
     });*/
 });
 
-app.post('/login', (req, res) => {
-  firebase.auth().signInWithEmailAndPassword(req.body.email, req.body.password).then(() => {
-    res.json('success');
-  }).catch((error) => {
-    res.json('error');
-  });
+app.get('/api/all-videos', (req, res) => {
+  let data = [];
+  res.send(fs.readdirSync('./videos'));
 });
 
-app.post('/register', (req, res) => {
-  firebase.auth().createUserWithEmailAndPassword(req.body.email, req.body.password).then(() => {
-    res.json('success');
-  }).catch((error) => {
-    res.json('error');
+app.post('/api/add-video', upload.single('video'), (req, res) => {
+  fs.readFile('./videos/'+req.file.filename, (err, file) => {
+    if (err) {
+      throw err;
+    }
+    dbx.filesUpload({path: '/videos/'+req.file.filename, contents: file}).then(() => {
+      res.json('ok');
+    }).catch((error) => {
+      res.json(error);
+    });
   });
-});
-
-app.get('/logout', (req, res) => {
-  firebase.auth().signOut().then(() => {
-    res.json('success');
-  }).catch((error) => {
-    res.json('error');
-  });
+  /*fs.unlink('./videos/'+req.file.filename, (err) => {
+    console.log('temp video removed');
+  });*/
 });
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '/client/public/index.html'));
 });
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 8080;
 
 app.listen(port, () => `Server running on port ${port}`);

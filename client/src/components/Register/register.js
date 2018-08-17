@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import firebase from '../../config/firebase';
 import Preloader from '../Preloader/preloader';
 import './register.css';
 
@@ -13,7 +14,7 @@ class Register extends Component {
             emailValid: false,
             passwordValid: false,
             formValid: false,
-            formSubmitted: null
+            formSubmitted: null,
         }
     }
     handleUserInput = e => {
@@ -31,11 +32,11 @@ class Register extends Component {
         switch(fieldName) {
             case 'email':
                 emailValid = value.length >= 1;
-                emailError = emailValid ? null : 'Email is important!';
+                emailError = emailValid ? null : 'Email is required!';
                 break;
             case 'password':
-                passwordValid = value.length >= 1;
-                passwordError = passwordValid? null : 'Password is important!';
+                passwordValid = value.length >= 6;
+                passwordError = passwordValid? null : 'Password is required!';
                 break; 
             default:
                 break;
@@ -55,22 +56,13 @@ class Register extends Component {
     handleSubmit = (e) => {
         e.preventDefault();
         this.setState({formSubmitted: 'success'});
-        fetch('/register', {
-            method: 'post',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                "email": this.state.email,
-                "password": this.state.password
-            }),
-        }).then(res => res.json())
-          .then(res => {
-                if (res === 'success') {
-                    window.location.href = '/';
-                } else if (res === 'error') {
-                    console.log('error');
-                    this.setState({formSubmitted: 'Fail: Email is taken!'});
-                }
+        firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password).then(() => {
+            window.location.href = '/';
+        }).catch((error) => {
+            console.log(error);
+            this.setState({formSubmitted: 'Fail: Email is taken!'});
         });
+        
     }
     ifWrong = () => {
         if (this.state.formSubmitted === 'success') {
