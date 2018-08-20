@@ -17,7 +17,6 @@ app.use(cookieParser());
 
 app.use(flash());
 
-//dropbox config
 require('isomorphic-fetch');
 const Dropbox = require('dropbox').Dropbox;
 const dbx = new Dropbox({ accessToken: 'CV09yugEd2AAAAAAAAAADmcjkJ-SeJlYCq7aFx0UlxVuGbUoZWeLcP0adKRikugV' });
@@ -27,25 +26,25 @@ const storage = multer.diskStorage({
     cb(null, './videos');
   },
   filename: (req, file, cb) => {
-    //cb(null, `${file.originalname}`);
     cb(null, `${uuidv4()}${path.extname(file.originalname)}`);
   }
 })
 
 const upload = multer({ storage });
 
-//api for getting videos miniatures
-app.get('/api/miniatures', (req, res) => {
-    /*dbx.filesGetTemporaryLink({path: '/Sun.png'})
-      .then((resp) => {
-        res.json(resp.link);
-    });*/
+app.post('/api/get-video', (req, res) => {
+  dbx.filesGetTemporaryLink({path: '/videos/'+req.body.id})
+    .then((resp) => {
+      res.json(resp.link);
+    });
 });
 
-app.get('/api/all-videos', (req, res) => {
-  let data = [];
-  res.send(fs.readdirSync('./videos'));
-});
+/*app.get('/api/video', (req, res) => {
+    dbx.filesGetTemporaryLink({path: '/Sun.png'})
+      .then((resp) => {
+        res.json(resp.link);
+    });
+});*/
 
 app.post('/api/add-video', upload.single('video'), (req, res) => {
   fs.readFile('./videos/'+req.file.filename, (err, file) => {
@@ -53,14 +52,14 @@ app.post('/api/add-video', upload.single('video'), (req, res) => {
       throw err;
     }
     dbx.filesUpload({path: '/videos/'+req.file.filename, contents: file}).then(() => {
-      res.json('ok');
+      res.json(req.file.filename);
     }).catch((error) => {
       res.json(error);
     });
   });
-  /*fs.unlink('./videos/'+req.file.filename, (err) => {
+  fs.unlink('./videos/'+req.file.filename, (err) => {
     console.log('temp video removed');
-  });*/
+  });
 });
 
 app.get('*', (req, res) => {

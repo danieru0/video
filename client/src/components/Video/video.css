@@ -4,6 +4,7 @@
     height: auto;
     padding: 0;
     line-height: 0px;
+    margin-right: 30px;
 }
 
 .overlay {
@@ -40,7 +41,7 @@
 
 .video h3 {
     text-align: left;
-    font-size: 24px;
+    font-size: 20px;
     text-transform: none;
     width: 280px;
     word-break: break-all;

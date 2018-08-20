@@ -14,9 +14,8 @@ a {
 .wrapper {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
     padding-top: 30px;
     width: 1030px;
-    height: 100%;
     box-sizing: border-box;
+    justify-content: center;
 }

@@ -4,9 +4,9 @@ import './video.css';
 
 class Video extends Component {
     render() {
-        const { title, length, image } = this.props;
+        const { title, length, image, id } = this.props;
         return (
-            <Link to ="/elo">
+            <Link to={"/watch/"+id}>
                 <button className="video">
                     <span className="overlay">
                         <div className="video__length">

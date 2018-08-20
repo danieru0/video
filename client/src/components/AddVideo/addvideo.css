@@ -3,7 +3,13 @@
     flex-direction: column;
 }
 
+.video-preview__group {
+    display: flex;
+    flex-direction: column;
+}
+
 .video-settings {
+    align-self: center;
     display: flex;
     flex-direction: column;
     margin-left: 50px;
@@ -18,16 +24,19 @@
 
 .form-add textarea{
     resize: none;
-    height: 100%;
+    height: 300px;
 }
 
 .form-add button {
-    margin-left: auto;
     margin-right: auto;
     position: relative;
-    left: -12px;
 }
 
 .video-title {
     width: 400px;
+}
+
+.video-text {
+    margin: 0;
+    font-size: 18px;
 }
