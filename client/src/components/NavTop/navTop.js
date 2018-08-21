@@ -27,11 +27,12 @@ class User extends Component {
         return name.split("@")[0];
     }
     render() {
-        const {name} = this.props;
+        const {name, avatar} = this.props;
         return (
             <ul>
-                <li>
+                <li className="user">
                     <Link to="/profile">
+                        <img width="32px" height="32px" alt="" src={avatar}></img>
                         {this.login(name)}
                     </Link>
                 </li>
@@ -55,13 +56,22 @@ class NavTop extends Component {
         super();
         this.state = {
             user: '',
+            userAvatar: ''
         }
     }
     componentDidMount() {
         firebase.auth().onAuthStateChanged((user) => {
             this.setState({
-              user: user
+                user: user
             })
+            firebase.database().ref('users').orderByChild('email').equalTo(user.email).on('value', (snapshot) => {
+                snapshot.forEach((childSnap) => {
+                    let userData = childSnap.val();
+                    this.setState({
+                        userAvatar: userData.avatar
+                    });
+                });
+            });
           })
     }
     render() {
@@ -69,7 +79,7 @@ class NavTop extends Component {
             <nav className="topNav">
                 {   
                     this.state.user ? (
-                        <User name={this.state.user.email}/>
+                        <User avatar={this.state.userAvatar} name={this.state.user.email}/>
                     ) : (
                         <Guest />
                     )

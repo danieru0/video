@@ -37,6 +37,26 @@
     margin: 0;
 }
 
+.video__likes {
+    float: right;
+    position: relative;
+    top: -28px;
+}
+
+.video__likes button {
+    border: none;
+    width: auto;
+    padding: 0;
+    margin: 0;
+    font-size: 24px;
+    margin-left: 20px;
+}
+
+.likes__amount {
+    font-size: 20px;
+    font-weight: normal;
+}
+
 .watch-video__info .line {
     display: block;
     position: relative;
@@ -57,4 +77,12 @@
 .info__description {
     margin-left: 58px;
     width: 650px;
+}
+
+.clicked-like {
+    color: blue;
+}
+
+.clicked-dislike {
+    color: red;
 }
