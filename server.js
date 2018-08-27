@@ -39,13 +39,6 @@ app.post('/api/get-video', (req, res) => {
     });
 });
 
-/*app.get('/api/video', (req, res) => {
-    dbx.filesGetTemporaryLink({path: '/Sun.png'})
-      .then((resp) => {
-        res.json(resp.link);
-    });
-});*/
-
 app.post('/api/add-video', upload.single('video'), (req, res) => {
   fs.readFile('./videos/'+req.file.filename, (err, file) => {
     if (err) {

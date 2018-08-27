@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import firebase from '../../config/firebase';
 import './navTop.css';
 
@@ -56,7 +56,8 @@ class NavTop extends Component {
         super();
         this.state = {
             user: '',
-            userAvatar: ''
+            userAvatar: '',
+            searchValue: null
         }
     }
     componentDidMount() {
@@ -74,9 +75,21 @@ class NavTop extends Component {
             });
           })
     }
+    handleSearchInput = (e) => {
+        this.setState({searchValue: e.target.value});
+    }
+    handleSearchSubmit = (e) => {
+        e.preventDefault();
+        this.props.history.push('/search/'+this.state.searchValue);
+    }
     render() {
         return (
             <nav className="topNav">
+                <div className="search">
+                    <form onSubmit={this.handleSearchSubmit}>
+                        <input onChange={this.handleSearchInput} placeholder="Search..." type="text"></input>
+                    </form>
+                </div>
                 {   
                     this.state.user ? (
                         <User avatar={this.state.userAvatar} name={this.state.user.email}/>
@@ -89,4 +102,4 @@ class NavTop extends Component {
     }
 }
 
-export default NavTop;
+export default withRouter(NavTop);

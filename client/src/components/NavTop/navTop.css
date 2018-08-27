@@ -5,7 +5,7 @@
     position: fixed;
     z-index: 99;
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     align-items: center;
 }
 
@@ -15,6 +15,8 @@
     margin: 0;
     margin-right: 100px;
     display: flex;
+    position: absolute;
+    right: 0;
 }
 
 .topNav li {
@@ -31,4 +33,18 @@
 .user img {
     float: left;
     padding-right: 5px;
+}
+
+.search {
+    display: flex;
+    align-items: center;
+}
+
+.search input,
+.search form {
+    margin: 0;
+}
+
+.search input {
+    width: 300px;
 }

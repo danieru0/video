@@ -67,11 +67,26 @@
     margin-top: 20px;
     width: 170px;
     height: 50px;
+    display: flex;    
 }
 
-.info__author img {
-    float: left;
+.author__avatar {
     padding-right: 10px;
+}
+
+.author__nick {
+    font-weight: 500;
+}
+
+.author__user p {
+    margin: 0;
+}
+
+.upload-date {
+    position: relative;
+    top: -5px;
+    color: #1119;
+    font-size: 1.3rem;
 }
 
 .info__description {
@@ -85,4 +100,55 @@
 
 .clicked-dislike {
     color: red;
+}
+
+.watch-video__comments {
+    margin-top: 25px;
+}
+
+.comments__amount {
+    font-size: 18px;
+}
+
+.comments__add {
+    display: flex;
+}
+
+.comments__form {
+    margin-left: 20px;
+    width: 100%;
+}
+
+.comments__form textarea {
+    width: 100%;
+    resize: none;
+}
+
+.comments__form button {
+    float: right;
+    margin-top: -10px;
+}
+
+.comments__all {
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.comments__comment {
+    display: flex;
+    margin-bottom: 35px;
+}
+
+.comment__content {
+    margin-left: 15px;
+}
+
+.comment__content p {
+    margin: 0;
+}
+
+.comment__author {
+    font-weight: bold;
+    font-size: 14px;
+    color: #111111;
 }

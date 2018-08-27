@@ -9,7 +9,7 @@
     position: absolute;
     z-index: 9;
     background-color: transparent;
-    color: #000000;
+    color: #ffffff;
     border: none;
     outline: none;
     width: auto;
@@ -19,6 +19,30 @@
     text-align: left;
     padding: 0;
     top: 9px;
+    transition: 0.5s ease-in-out;
+}
+
+.hamburger.shown {
+    color: #000000;
+}
+
+.sidenav a {
+    position: absolute;
+}
+
+.logo {
+    position: absolute;
+    font-size: 24px;
+    color: #ffffff;
+    text-decoration: none;
+    left: 40px;
+    top: 9.499px;
+    z-index: 9;
+    transition: 0.5s ease-in-out;
+}
+
+.logo.shown {
+    color: #000000;
 }
 
 .line {
@@ -34,10 +58,41 @@
     height: 100%;
     position: relative;
     left: -200px;
-    transition: left 0.5s ease-in-out;
+    transition: 0.5s ease-in-out;
     background-color: #ffffff;
 }
 
 .menu.shown {
     left: 0px;
+}
+
+.sidenav__list {
+    list-style: none;
+    position: relative;
+    top: 75px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidenav__item {
+    font-size: 17px;
+}
+
+.sidenav__item span {
+    font-size: 20px;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.sidenav__item a {
+    text-decoration: none;
+    color: #111;
+    width: 100%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.sidenav__item a:hover {
+    background-color: #f0f0f0;
 }

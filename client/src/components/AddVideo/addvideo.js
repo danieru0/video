@@ -92,16 +92,19 @@ class Add extends Component {
                     firebase.storage().ref().child('miniatures/'+newFile.name).put(newFile).then((snapshot) => {
                         snapshot.ref.getDownloadURL().then((url) => {
                             let duration = this.getDuration();
+                            let date = new Date().toISOString().slice(0, 10);
                             let newVideoFirebase = firebase.database().ref('videos/').push();
                             newVideoFirebase.set({
                                 title: this.state.videoTitle,
                                 description: this.state.videoDescription,
                                 author: firebase.auth().currentUser.email,
+                                comments: '',
                                 miniature: url,
                                 duration: duration,
                                 views: 0,
                                 likes: 0,
                                 dislikes: 0,
+                                uploadDate: date,
                                 id: res
                             }).then(() => {
                                 this.setState({
