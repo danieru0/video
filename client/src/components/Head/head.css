@@ -7,10 +7,6 @@
     justify-content: center;
 }
 
-a {
-    height: 0px;
-}
-
 .wrapper {
     display: flex;
     flex-wrap: wrap;
@@ -18,4 +14,10 @@ a {
     width: 1030px;
     box-sizing: border-box;
     justify-content: center;
+}
+
+@media (max-width: 620px) {
+    .wrapper {
+        min-height: 850px;
+    }
 }

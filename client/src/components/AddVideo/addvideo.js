@@ -71,58 +71,60 @@ class Add extends Component {
     }
     handleSubmit = (e) => {
         e.preventDefault();
-        if (this.state.video) {
-            if (!this.state.videoTitle) {
-                alert('Video title is required!');
-                return;
-            }
-            this.setState({
-                formSubmitted: true
-            });
-            let formData = new FormData();
-            formData.append('video', this.state.video);
-            fetch('/api/add-video', {
-                method: 'post',
-                body: formData
-            }).then((res) => res.json())
-               .then((res) => {
-                    let newName = res.substring(0, res.lastIndexOf('.'));
-                    let blob = this.state.videoMiniature.slice(0, -1, 'image/png');
-                    let newFile = new File([blob], newName, {type: 'image/png'});
-                    firebase.storage().ref().child('miniatures/'+newFile.name).put(newFile).then((snapshot) => {
-                        snapshot.ref.getDownloadURL().then((url) => {
-                            let duration = this.getDuration();
-                            let date = new Date().toISOString().slice(0, 10);
-                            let newVideoFirebase = firebase.database().ref('videos/').push();
-                            newVideoFirebase.set({
-                                title: this.state.videoTitle,
-                                description: this.state.videoDescription,
-                                author: firebase.auth().currentUser.email,
-                                comments: '',
-                                miniature: url,
-                                duration: duration,
-                                views: 0,
-                                likes: 0,
-                                dislikes: 0,
-                                uploadDate: date,
-                                id: res
-                            }).then(() => {
-                                this.setState({
-                                    formResponse: 'Video added!',
-                                    formSubmitted: false
-                                });
-                                //window.location.href = '/';
-                            }).catch((error) => {
-                                this.setState({
-                                    formResponse: 'Video has not been added',
-                                    formSubmitted: false
+        if (!this.state.formSubmitted) {
+            if (this.state.video) {
+                if (!this.state.videoTitle) {
+                    alert('Video title is required!');
+                    return;
+                }
+                this.setState({
+                    formSubmitted: true
+                });
+                let formData = new FormData();
+                formData.append('video', this.state.video);
+                fetch('/api/add-video', {
+                    method: 'post',
+                    body: formData
+                }).then((res) => res.json())
+                   .then((res) => {
+                        let newName = res.substring(0, res.lastIndexOf('.'));
+                        let blob = this.state.videoMiniature.slice(0, -1, 'image/png');
+                        let newFile = new File([blob], newName, {type: 'image/png'});
+                        firebase.storage().ref().child('miniatures/'+newFile.name).put(newFile).then((snapshot) => {
+                            snapshot.ref.getDownloadURL().then((url) => {
+                                let duration = this.getDuration();
+                                let date = new Date().toISOString().slice(0, 10);
+                                let newVideoFirebase = firebase.database().ref('videos/').push();
+                                newVideoFirebase.set({
+                                    title: this.state.videoTitle,
+                                    description: this.state.videoDescription,
+                                    author: firebase.auth().currentUser.email,
+                                    comments: '',
+                                    miniature: url,
+                                    duration: duration,
+                                    views: 0,
+                                    likes: 0,
+                                    dislikes: 0,
+                                    uploadDate: date,
+                                    id: res
+                                }).then(() => {
+                                    this.setState({
+                                        formResponse: 'Video added!',
+                                        formSubmitted: false
+                                    });
+                                    //window.location.href = '/';
+                                }).catch((error) => {
+                                    this.setState({
+                                        formResponse: 'Video has not been added',
+                                        formSubmitted: false
+                                    });
                                 });
                             });
                         });
-                    });
-            })
-        } else {
-            alert('Video is required!');
+                })
+            } else {
+                alert('Video is required!');
+            }
         }
     }
     handleUserInput = (e) => {

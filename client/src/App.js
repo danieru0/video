@@ -9,6 +9,7 @@ import Video from './components/AddVideo/addvideo';
 import Watch from './components/Watch/watch';
 import Liked from './components/Liked/liked';
 import Search from './components/Search/search';
+import YourProfile from './components/YourProfile/yourprofile';
 import firebase from './config/firebase';
 
 class App extends Component {
@@ -55,6 +56,7 @@ class App extends Component {
               <Route path="/watch/:id" component={Watch} />
               <Route path="/liked" render={() => (this.isLoggedIn() ? <Liked />: <Redirect to="/"/>)} />
               <Route path="/search/:value" component={Search} />
+              <Route path="/profile" render={() => (this.isLoggedIn() ? <YourProfile /> : <Redirect to="/"/>)} />
             </Switch>
           </div>
         </BrowserRouter>

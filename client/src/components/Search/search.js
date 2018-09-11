@@ -13,7 +13,7 @@ class Search extends Component {
         let videos = [];
         firebase.database().ref('videos').once('value').then((snapshot) => {
             snapshot.forEach((childSnap) => {
-                if (childSnap.val().title.toLowerCase().includes(value.toLowerCase())) {
+                if (childSnap.val().title.toLowerCase().includes(value.toLowerCase()) || childSnap.val().author.toLowerCase().includes(value.toLowerCase())) {
                     videos.push(childSnap.val());
                 }
             });
@@ -40,7 +40,7 @@ class Search extends Component {
                         this.state.filteredVideos ? (
                             this.state.filteredVideos.map((item) => {
                                 return (
-                                    <Video key={item.id} length={item.duration} title={item.title} image={item.miniature} id={item.id} />
+                                    <Video key={item.id} uploadDate={item.uploadDate} views={item.views} author={item.author.split("@")[0]} length={item.duration} title={item.title} image={item.miniature} id={item.id} />
                                 )
                             })
                         ) : (

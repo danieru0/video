@@ -1,0 +1,209 @@
+.head.yourprofile {
+    align-items: center;
+}
+
+.yourprofile__main {
+    width: 1000px;
+    height: 700px;
+    display: flex;
+    flex-direction: column;
+}
+
+.yourprofile__menu {
+    width: 100%;
+    height: 60px;
+}
+
+.yourprofile__menu ul {
+    display: flex;
+    list-style: none;
+    border-bottom: 1px solid black;
+    border-top: 1px solid black;
+    height: 100%;
+}
+
+.yourprofile__menu li {
+    flex: 1;
+    margin: 0;
+}
+
+.yourprofile__menu li button {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 0px;
+    border-right: 1px solid black;
+    outline: none;
+}
+
+.yourprofile__menu__button.button-active {
+    background: lightblue;
+    color: #fff;
+}
+
+.yourprofile__menu li:first-child button {
+    border-left: 1px solid black;
+}
+
+.yourprofile__content {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.yourprofile__content-profile {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    position: absolute;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.3s;
+}
+
+.yourprofile__content-profile.profile-active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.yourprofile__content-videos {
+    width: 100%;
+    height: 100%;
+    margin-top: 10px;
+    box-sizing: border-box;
+    position: absolute;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.3s;
+    display: flex;
+}
+
+.yourprofile__content-videos.videos-active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.content-videos__videos {
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 297px;
+}
+
+.content-videos__videos .video {
+    margin-right: 0;
+}
+
+a.video {
+    cursor: pointer;
+    margin-bottom: 30px;
+}
+
+.content-videos__edit {
+    width: calc(100% - 297px);
+    height: 100%;
+    display: none;
+    flex-wrap: wrap;
+    overflow: hidden;
+}
+
+.content-videos__edit.active {
+    display: flex;
+}
+
+.vidoes__edit__info {
+    width: 50%;
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+.vidoes__edit__info textarea {
+    resize: none;
+    height: 500px;
+}
+
+.hidden {
+    display: none;
+}
+
+.videos__edit__miniature {
+    width: 50%;
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.videos__edit__buttons {
+    width: 100%;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-direction: column;
+}
+
+.videos__edit__buttons .spinner {
+    bottom: 10px;
+}
+
+.videos__edit__buttons button:nth-child(1) {
+    margin-right: 10px;
+}
+
+.profile__username {
+    font-size: 26px;
+}
+
+.profile__description {
+    font-size: 20px;
+}
+
+@media (max-width: 942px) {
+    .content-videos__edit {
+        flex-direction: column;
+        align-items: center;
+        flex-wrap: nowrap;
+    }
+    .vidoes__edit__info {
+        width: 99%;
+    }
+    .videos__edit__miniature {
+        width: auto;
+    }
+}
+
+@media (max-width: 620px) {
+    .yourprofile__content-videos {
+        flex-direction: column;
+        align-items: center;
+        height: auto;
+    }
+    .content-videos__videos {
+        width: 100%;
+        height: 299px;
+        overflow-x: scroll;
+        overflow-y: hidden;
+    }
+    .content-videos__edit {
+        width: auto;
+    }
+    .vidoes__edit__info {
+        margin-top: 10px;
+    }
+    .videos__edit__miniature {
+        height: auto;
+    }
+}
+
+@media (max-width: 346px) {
+    .content-videos__edit {
+        width: 100%;
+    }
+}

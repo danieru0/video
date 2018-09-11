@@ -7,7 +7,7 @@ class SideNav extends Component {
         super();
         this.state = {
             menu: false,
-            class: null
+            class: ''
         };
     }
     showMenu = () => {
@@ -26,10 +26,12 @@ class SideNav extends Component {
     render() {
         return (
             <nav className="sidenav">
+                <div className={"sidenav__buttons " + this.state.class}>
                 <button onClick={this.showMenu} className={"hamburger "+this.state.class}><span className="fa fa-bars"></span></button>
                 <Link to="/">
                     <span className={"logo "+this.state.class}>Home</span>
                 </Link>
+                </div>
                 <div className={"menu " + this.state.class}>
                     <span className="line"></span>
                     <ul className="sidenav__list">

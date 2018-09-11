@@ -51,7 +51,16 @@ app.post('/api/add-video', upload.single('video'), (req, res) => {
     });
   });
   fs.unlink('./videos/'+req.file.filename, (err) => {
-    console.log('temp video removed');
+    //console.log('temp video removed');
+  });
+});
+
+app.post('/api/remove-video', (req, res) => {
+  dbx.filesDeleteV2({path: '/videos/'+req.body.id}).then(() => {
+    res.json('success');
+  }).catch(error => {
+    res.json(error);
+    console.log(error);
   });
 });
 

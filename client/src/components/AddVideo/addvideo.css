@@ -40,3 +40,28 @@
     margin: 0;
     font-size: 18px;
 }
+
+@media (max-width: 900px) {
+    .form-add {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 769px) {
+    .form-add {
+        flex-direction: row;
+    }
+    .video-settings {
+        margin: 0;
+    }
+}
+
+@media (max-width: 417px) {
+    .video-settings {
+        width: 100%;
+    }
+    .video-settings input {
+        width: 100%;
+    }
+}

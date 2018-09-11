@@ -24,7 +24,10 @@ class Preloader extends Component {
                                     title: videos[item].title,
                                     miniature: videos[item].miniature,
                                     duration: videos[item].duration,
-                                    id: videos[item].id
+                                    id: videos[item].id,
+                                    author: videos[item].author.split("@")[0],
+                                    views: videos[item].views,
+                                    uploadDate: videos[item].uploadDate
                                 });
                             }
                         });
@@ -46,7 +49,7 @@ class Preloader extends Component {
                         this.state.videos ? (
                             this.state.videos.map((item) => {
                                 return (
-                                    <Video key={item.id} length={item.duration} title={item.title} image={item.miniature} id={item.id} />
+                                    <Video key={item.id} uploadDate={item.uploadDate} views={item.views} author={item.author} length={item.duration} title={item.title} image={item.miniature} id={item.id} />
                                 )
                             })
                         ) : (

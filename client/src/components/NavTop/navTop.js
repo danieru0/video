@@ -9,12 +9,13 @@ class Guest extends Component {
             <ul>
                 <li>
                     <Link to="/login">
-                        Login
+                        <span className="topNav-text">Login</span>
+                        <span className="topNav-icon fa fa-sign-in"></span>
                     </Link>
                 </li>
                 <li>
                     <Link to="/register">
-                        Register
+                        <span className="topNav-text">Register</span>                        
                     </Link>
                 </li>
             </ul>
@@ -33,17 +34,19 @@ class User extends Component {
                 <li className="user">
                     <Link to="/profile">
                         <img width="32px" height="32px" alt="" src={avatar}></img>
-                        {this.login(name)}
+                        <span className="topNav-text">{this.login(name)}</span>
                     </Link>
                 </li>
                 <li>
                     <Link to="/add-video">
-                        Add video
+                        <span className="topNav-text">Add video</span>
+                        <span className="topNav-icon fa fa-upload"></span>
                     </Link>
                 </li>
                 <li>
                     <Link to="/logout">
-                        Logout
+                        <span className="topNav-text">Logout</span>
+                        <span className="topNav-icon fa fa-sign-out"></span>
                     </Link>
                 </li>
             </ul>
@@ -57,7 +60,9 @@ class NavTop extends Component {
         this.state = {
             user: '',
             userAvatar: '',
-            searchValue: null
+            searchValue: null,
+            menu: false,
+            class: null
         }
     }
     componentDidMount() {
@@ -82,13 +87,27 @@ class NavTop extends Component {
         e.preventDefault();
         this.props.history.push('/search/'+this.state.searchValue);
     }
+    showSearch = () => {
+        if (this.state.menu === false) {
+            this.setState({
+                menu: true,
+                class: "active"
+            });
+        } else {
+            this.setState({
+                menu: false,
+                class: ''
+            });
+        }
+    }
     render() {
         return (
             <nav className="topNav">
                 <div className="search">
-                    <form onSubmit={this.handleSearchSubmit}>
+                    <form className={this.state.class} onSubmit={this.handleSearchSubmit}>
                         <input onChange={this.handleSearchInput} placeholder="Search..." type="text"></input>
                     </form>
+                    <button onClick={this.showSearch} className="search__mobile-search"><span className="fa fa-search"></span></button>
                 </div>
                 {   
                     this.state.user ? (

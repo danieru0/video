@@ -185,27 +185,29 @@ class Watch extends Component {
     }
     handleCommentSubmit = (e) => {
         e.preventDefault();
-        firebase.auth().onAuthStateChanged((user) => {
-            if (user) {
-                let comment = {
-                    comment: this.state.userComment,
-                    author: user.email,
-                    avatar: this.state.userAvatar
-                }
-                firebase.database().ref('videos').orderByChild('id').equalTo(this.state.id).once('child_added', (snapshot) => {
-                    this.setState({
-                        videoComments: this.state.videoComments ? [...this.state.videoComments, comment] : [comment],
-                        commentsAmount: this.state.commentsAmount + 1
-                    }, () => {
+        if (this.state.userComment && this.state.userComment !== '' && this.state.userComment.indexOf(' ') !== 0) {
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user) {
+                    let comment = {
+                        comment: this.state.userComment,
+                        author: user.email,
+                        avatar: this.state.userAvatar
+                    }
+                    firebase.database().ref('videos').orderByChild('id').equalTo(this.state.id).once('child_added', (snapshot) => {
                         this.setState({
-                            videoComments: this.state.videoComments.filter(function(n){return n !== undefined})
+                            videoComments: this.state.videoComments ? [...this.state.videoComments, comment] : [comment],
+                            commentsAmount: this.state.commentsAmount + 1
                         }, () => {
-                            snapshot.ref.update({comments: this.state.videoComments, commentsAmount: this.state.commentsAmount});
+                            this.setState({
+                                videoComments: this.state.videoComments.filter(function(n){return n !== undefined})
+                            }, () => {
+                                snapshot.ref.update({comments: this.state.videoComments, commentsAmount: this.state.commentsAmount});
+                            });
                         });
-                    });
-                }); 
-            }
-        });
+                    }); 
+                }
+            });
+        }
     }
     render() {
         return (
@@ -243,12 +245,12 @@ class Watch extends Component {
                         {
                             this.state.user ? (
                                 <div className="comments__add">
-                                <img src={this.state.userAvatar} alt="" width="40px" height="40px"></img>
-                                <form onSubmit={this.handleCommentSubmit} className="comments__form">
-                                    <textarea onChange={this.handleCommentInput} placeholder="Your comment" type="text"></textarea>
-                                    <button className="button button-primary" type="submit">Add comment</button>
-                                </form>
-                            </div>
+                                    <img src={this.state.userAvatar} alt="" width="40px" height="40px"></img>
+                                    <form onSubmit={this.handleCommentSubmit} className="comments__form">
+                                        <textarea onChange={this.handleCommentInput} placeholder="Your comment" type="text"></textarea>
+                                        <button className="button button-primary" type="submit">Add comment</button>
+                                    </form>
+                                </div>
                             ) : (
                                 ''
                             )

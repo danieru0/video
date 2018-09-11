@@ -20,7 +20,10 @@ class Head extends Component {
                     title: items[item].title,
                     miniature: items[item].miniature,
                     duration: items[item].duration,
-                    id: items[item].id
+                    id: items[item].id,
+                    author: items[item].author.split("@")[0],
+                    views: items[item].views,
+                    uploadDate: items[item].uploadDate
                 });
             }
             if (this._mounted) {
@@ -41,7 +44,7 @@ class Head extends Component {
                         this.state.videos ? (
                             this.state.videos.map((item) => {
                                 return (
-                                    <Video key={item.id} length={item.duration} title={item.title} image={item.miniature} id={item.id} />
+                                    <Video key={item.id} uploadDate={item.uploadDate} views={item.views} author={item.author} length={item.duration} title={item.title} image={item.miniature} id={item.id} />
                                 )
                             })
                         ) : (
