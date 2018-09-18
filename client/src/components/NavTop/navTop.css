@@ -37,6 +37,7 @@
 .user img {
     float: left;
     padding-right: 5px;
+    margin-top: 2px;
 }
 
 .search {

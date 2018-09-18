@@ -10,8 +10,10 @@ class Yourprofile extends Component {
         this.state = {
             activeElement: 'profile-active',
             userImg: null,
+            userImgLink: null,
             userEmail: null,
             userDescription: null,
+            userDescriptionSettings: null,
             userVideos: null,
             editTitle: '',
             shortedTitle: null,
@@ -21,42 +23,53 @@ class Yourprofile extends Component {
             clickedVideoId: null,
             active: '',
             submitted: false,
-            submittedMessage: ''
+            submittedMessage: '',
+            oldPassword: null,
+            newPassword: null,
+            settingsMessageMiniature: '',
+            settingsMessageDescription: '',
+            settingsMessagePassword: '',
+            settingsMessageDeleteAccount: '',
+            deleteAccountPassword: null,
+            removingAccountProcess: '',
         }
     }
     componentDidMount() {
         firebase.auth().onAuthStateChanged((user) => {
             let newState = [];
-            firebase.database().ref('users').orderByChild('email').equalTo(user.email).on('value', (snapshot) => {
-                snapshot.forEach(childSnap => {
-                    this.setState({
-                        userImg: childSnap.val().avatar,
-                        userEmail: childSnap.val().email,
-                        userDescription: childSnap.val().description
+            if (user) {
+                firebase.database().ref('users').orderByChild('email').equalTo(user.email).on('value', (snapshot) => {
+                    snapshot.forEach(childSnap => {
+                        this.setState({
+                            userImgLink: childSnap.val().avatar,
+                            userImgLinkProfile: childSnap.val().avatar,
+                            userEmail: childSnap.val().email,
+                            userDescription: childSnap.val().description
+                        });
                     });
                 });
-            });
-            firebase.database().ref('videos').orderByChild('author').equalTo(user.email).on('value', (snapshot) => {
-                let videos = snapshot.val();
-                let shortedTitle = '';
-                for (let item in videos) {
-                    if (videos[item].title.length > 55) {
-                        shortedTitle = videos[item].title.substring(0, 55)+'...';
+                firebase.database().ref('videos').orderByChild('author').equalTo(user.email).on('value', (snapshot) => {
+                    let videos = snapshot.val();
+                    let shortedTitle = '';
+                    for (let item in videos) {
+                        if (videos[item].title.length > 55) {
+                            shortedTitle = videos[item].title.substring(0, 55)+'...';
+                        }
+                        newState.push({
+                            title: videos[item].title,
+                            shortedTitle: shortedTitle,
+                            miniature: videos[item].miniature,
+                            duration: videos[item].duration,
+                            id: videos[item].id,
+                            author: videos[item].author.split("@")[0],
+                            views: videos[item].views,
+                            uploadDate: videos[item].uploadDate,
+                            description: videos[item].description
+                        });
                     }
-                    newState.push({
-                        title: videos[item].title,
-                        shortedTitle: shortedTitle,
-                        miniature: videos[item].miniature,
-                        duration: videos[item].duration,
-                        id: videos[item].id,
-                        author: videos[item].author.split("@")[0],
-                        views: videos[item].views,
-                        uploadDate: videos[item].uploadDate,
-                        description: videos[item].description
-                    });
-                }
-            });
-            this.setState({userVideos: newState});
+                });
+                this.setState({userVideos: newState});
+            }
         });
     }
     handleClick = (clicked, element) => {
@@ -138,9 +151,157 @@ class Yourprofile extends Component {
             })
         }
     }
+    changeMiniature = (e) => {
+        const file = e.target.files[0];
+        this.setState({
+            userImg: file,
+            userImgLink: window.URL.createObjectURL(file)
+        });
+    }
+    changeDescription = (e) => {
+        this.setState({
+            userDescriptionSettings: e.target.value,
+            userDescription: e.target.value
+        });
+    }
+    saveSettings = () => {
+        if (this.state.userImg) {
+            console.log(this.state.userImg);
+            let newFile = new File([this.state.userImg], this.state.userEmail, {type: 'image/png'});
+            firebase.storage().ref().child('avatars/'+newFile.name).put(newFile).then((snapshot) => {
+                snapshot.ref.getDownloadURL().then((url) => {
+                    firebase.database().ref('users').orderByChild('email').equalTo(this.state.userEmail).once('child_added', (snapshot) => {
+                        snapshot.ref.update({
+                            avatar: url
+                        });
+                        this.setState({
+                            settingsMessageMiniature: 'Avatar has beed changed!'
+                        });
+                    });  
+                });
+            });
+        }
+        if (this.state.userDescriptionSettings) {
+            firebase.database().ref('users').orderByChild('email').equalTo(this.state.userEmail).once('child_added', (snapshot) => {
+                snapshot.ref.update({
+                    description: this.state.userDescriptionSettings
+                });
+                this.setState({
+                    settingsMessageDescription: 'Description has beed changed!'
+                });
+            });
+        }
+        if (this.state.oldPassword && this.state.newPassword) {
+            firebase.auth().onAuthStateChanged(user => {
+                let credential = firebase.auth.EmailAuthProvider.credential(
+                    this.state.userEmail,
+                    this.state.oldPassword
+                );
+                user.reauthenticateWithCredential(credential).then(() => {
+                    user.updatePassword(this.state.newPassword).then(() => {
+                        this.setState({
+                            settingsMessagePassword: 'Password has been changed!'
+                        });
+                    }).catch(() => {
+                        this.setState({
+                            settingsMessagePassword: 'New password should have at least 6 characters!'
+                        });
+                    });
+                }).catch(() => {
+                    this.setState({
+                        settingsMessagePassword: 'Old password is wrong!'
+                    });
+                });
+            });
+        }
+    }
+    deleteAccount = () => {
+        const confirm = window.confirm('Are you really want delete your account?');
+        if (confirm === true) {
+            let credential = firebase.auth.EmailAuthProvider.credential(
+                this.state.userEmail,
+                this.state.deleteAccountPassword
+            );
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user) {
+                    user.reauthenticateWithCredential(credential).then(() => {
+                        this.setState({removingAccountProcess: 'process'});
+                        let videosArray = [];
+                        //removing users videos
+                        firebase.database().ref('videos').orderByChild('author').equalTo(this.state.userEmail).on('value', (snapshot) => {
+                            let videos = snapshot.val();
+                            for (let item in videos) {
+                                videosArray.push(videos[item].id);
+                            }
+                        });
+                        for (let i = 0; i < videosArray.length; i++) {
+                            axios.post('/api/remove-video', {
+                                id: videosArray[i]
+                            });
+                            firebase.database().ref('videos').orderByChild('id').equalTo(videosArray[i]).once('child_added', (snapshot) => {
+                                snapshot.ref.remove();
+                            });
+                            firebase.storage().ref('miniatures').child(videosArray[i].substring(0, videosArray[i].lastIndexOf('.'))).delete();
+                        }
+                        //removing likes from videos
+                        firebase.database().ref('users').orderByChild('email').equalTo(this.state.userEmail).on('value', (snapshot) => {
+                            let likes = '';
+                            snapshot.forEach(item => {
+                                likes = item.val().likes;
+                            });
+                            for (let i = 0; i < likes.length; i++) {
+                                if (likes[i] !== 'zero') {
+                                    firebase.database().ref('videos').orderByChild('id').equalTo(likes[i]).once('child_added', (snapshot) => {
+                                        let videoLikes = snapshot.val().likes;
+                                        snapshot.ref.update({
+                                            likes: videoLikes - 1
+                                        });
+                                    });
+                                }
+                            }
+                        });
+                        //removing dislikes from videos
+                        firebase.database().ref('users').orderByChild('email').equalTo(this.state.userEmail).on('value', (snapshot) => {
+                            let dislikes = '';
+                            snapshot.forEach(item => {
+                                dislikes = item.val().dislikes;
+                            });
+                            for (let i = 0; i < dislikes.length; i++) {
+                                if (dislikes[i] !== 'zero') {
+                                    firebase.database().ref('videos').orderByChild('id').equalTo(dislikes[i]).once('child_added', (snapshot) => {
+                                        let videoDislikes = snapshot.val().dislikes;
+                                        snapshot.ref.update({
+                                            dislikes: videoDislikes - 1
+                                        });
+                                    });
+                                }
+                            }
+                        });
+                        firebase.database().ref('users').orderByChild('email').equalTo(this.state.userEmail).once('child_added', (snapshot) => {
+                            snapshot.ref.remove();
+                        });
+                        firebase.storage().ref('avatars').child(this.state.userEmail).getDownloadURL().then(() => {
+                            firebase.storage().ref('avatars').child(this.state.userEmail).delete();
+                        }).catch(() => {
+                            '';
+                        });
+                        user.delete();
+                        this.setState({removingAccountProcess: ''});
+                    }).catch((err) => {
+                        this.setState({
+                            settingsMessageDeleteAccount: 'Wrong password!'
+                        });
+                    });
+                }
+            });
+        }
+    }
     render() {
         return (
             <div className="head yourprofile">
+            <div className={"account-removing "+this.state.removingAccountProcess}>
+                <p>Deleting account...</p>
+            </div>
                 <div className="yourprofile__main">
                     <div className="yourprofile__menu">
                         <ul>
@@ -151,7 +312,7 @@ class Yourprofile extends Component {
                     </div>
                     <div className="yourprofile__content">
                         <div className={"yourprofile__content-profile "+this.state.activeElement}>
-                            <img width="128px" height="128px" src={this.state.userImg} alt=""></img>
+                            <img width="128px" height="128px" src={this.state.userImgLinkProfile} alt=""></img>
                             <p className="profile__username">{this.state.userEmail}</p>
                             <p className="profile__description">{this.state.userDescription}</p>
                         </div>
@@ -205,6 +366,35 @@ class Yourprofile extends Component {
                                         )
                                     }
                                 </div>
+                            </div>
+                        </div>
+                        <div className={"yourprofile__content-settings "+this.state.activeElement}>
+                            <div className="content-settings__option">
+                                <p className="settings__option__title">Avatar</p>
+                                <img width="128px" height="128px" src={this.state.userImgLink} alt=""></img>
+                                <input onChange={this.changeMiniature} type="file" accept="image/*"></input>
+                                <p className="option__message">{this.state.settingsMessageMiniature}</p>
+                            </div>
+                            <div className="content-settings__option">
+                                <p className="settings__option__title">Profile description</p>
+                                <textarea onChange={this.changeDescription} value={this.state.userDescription ? this.state.userDescription : ''} placeholder="Description"></textarea>
+                                <p className="option__message">{this.state.settingsMessageDescription}</p>
+                            </div>
+                            <div className="content-settings__option">
+                                <p className="settings__option__title">Change password</p>
+                                <input onChange={this.handleInput} name="oldPassword" type="password" placeholder="Old password"></input>
+                                <input onChange={this.handleInput} name="newPassword" type="password" placeholder="New password"></input>
+                                <p className="option__message">{this.state.settingsMessagePassword}</p>
+                            </div>
+                            <div className="content-settings__option">
+                                <p className="settings__option__title">Delete account</p>
+                                <input onChange={this.handleInput} name="deleteAccountPassword" type="password" placeholder="Password"></input>
+                                <button onClick={this.deleteAccount} className="button button-primary">Delete</button>
+                                <p className="option__message">{this.state.settingsMessageDeleteAccount}</p>
+                            </div>
+                            <div className="content-settings__option">
+                                <p className="settings__option__title">Save</p>
+                                <button onClick={this.saveSettings} className="button button-primary">Save settings</button>
                             </div>
                         </div>
                     </div>

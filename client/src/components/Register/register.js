@@ -63,7 +63,8 @@ class Register extends Component {
                 nick: this.state.email.split("@")[0],
                 avatar: 'https://image.flaticon.com/icons/svg/149/149071.svg',
                 likes: ['zero'],
-                dislikes: ['zero']
+                dislikes: ['zero'],
+                description: `Hello! My name is: ${this.state.email.split("@")[0]}`
             });
             window.location.href = '/';
         }).catch((error) => {
@@ -85,7 +86,7 @@ class Register extends Component {
                 <h2>Register</h2>
                 <form method="post" onSubmit={this.handleSubmit} className="form-login">
                     <div className="inputs-group">
-                        <input onChange={(event) => this.handleUserInput(event)} value={this.state.email} type="email" name="email" placeholder="Your login"></input>
+                        <input onChange={(event) => this.handleUserInput(event)} value={this.state.email} type="email" name="email" placeholder="Your email"></input>
                         <span>{this.state.emailError}</span>
                     </div>
                     <div className="inputs-group">

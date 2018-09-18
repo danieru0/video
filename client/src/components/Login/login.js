@@ -75,7 +75,7 @@ class Login extends Component {
                 <h2>Login</h2>
                 <form method="post" onSubmit={this.handleSubmit} className="form-login">
                     <div className="inputs-group">
-                        <input onChange={(event) => this.handleUserInput(event)} value={this.state.email} type="email" name="email" placeholder="Your login"></input>
+                        <input onChange={(event) => this.handleUserInput(event)} value={this.state.email} type="email" name="email" placeholder="Your email"></input>
                         <span>{this.state.emailError}</span>
                     </div>
                     <div className="inputs-group">

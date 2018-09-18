@@ -12,7 +12,7 @@ class Head extends Component {
     }
     componentDidMount() {
         this._mounted = true;
-        firebase.database().ref('/videos').once('value').then((snapshot) => {
+        firebase.database().ref('videos').once('value').then((snapshot) => {
             let items = snapshot.val();
             let newState = [];
             for (let item in items) {
@@ -34,7 +34,7 @@ class Head extends Component {
         });
     }
     componentWillUnmount() {
-        this._mounted = false
+        this._mounted = false;
     }
     render() {
         return (

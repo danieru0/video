@@ -100,6 +100,7 @@ class Add extends Component {
                                     description: this.state.videoDescription,
                                     author: firebase.auth().currentUser.email,
                                     comments: '',
+                                    commentsAmount: 0,
                                     miniature: url,
                                     duration: duration,
                                     views: 0,

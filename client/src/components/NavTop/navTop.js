@@ -69,16 +69,18 @@ class NavTop extends Component {
         firebase.auth().onAuthStateChanged((user) => {
             this.setState({
                 user: user
-            })
-            firebase.database().ref('users').orderByChild('email').equalTo(user.email).on('value', (snapshot) => {
-                snapshot.forEach((childSnap) => {
-                    let userData = childSnap.val();
-                    this.setState({
-                        userAvatar: userData.avatar
+            });
+            if (user) {
+                firebase.database().ref('users').orderByChild('email').equalTo(user.email).on('value', (snapshot) => {
+                    snapshot.forEach((childSnap) => {
+                        let userData = childSnap.val();
+                        this.setState({
+                            userAvatar: userData.avatar
+                        });
                     });
                 });
-            });
-          })
+            }
+        });
     }
     handleSearchInput = (e) => {
         this.setState({searchValue: e.target.value});
