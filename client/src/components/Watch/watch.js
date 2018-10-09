@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Helmet } from 'react-helmet';
 import axios from 'axios';
 import firebase from '../../config/firebase';
 import './watch.css';
@@ -15,6 +16,7 @@ class Watch extends Component {
             videoViews: 0,
             videoLikes: 0,
             videoDislikes: 0,
+            videoFound: true,
             uploadDate: null,
             userLikes: null,
             userDislikes: null,
@@ -25,10 +27,15 @@ class Watch extends Component {
             userComment: null,
             userAvatar: null,
             user: null,
-            commentsAmount: 0
+            commentsAmount: 0,
+            showMore: false,
+            showMoreButton: false,
+            commentsPart: '',
+            scrolled: 0
         }
     }
     componentDidMount() {
+        this._mounted = true;
         const {id} = this.props.match.params;
         firebase.database().ref('videos').orderByChild('id').equalTo(id).on('value', (snapshot) => {
             snapshot.forEach((childSnap) => {
@@ -38,40 +45,51 @@ class Watch extends Component {
                 if (videoData.comments) {
                     videoComments = videoData.comments.filter(function(n){return n !== undefined});
                 }
-                this.setState({
-                    videoTitle: videoData.title,
-                    videoDescription: videoData.description,
-                    videoAuthor: author,
-                    videoViews: videoData.views,
-                    videoLikes: videoData.likes,
-                    videoDislikes: videoData.dislikes,
-                    uploadDate: videoData.uploadDate,
-                    videoComments: videoComments,
-                    commentsAmount: videoData.commentsAmount
-                }, () => {
+                if (videoData.description.length > 100) {
+                    this.setState({showMoreButton: true});
+                }
+                if (this._mounted) {
                     this.setState({
-                        videoViews: this.state.videoViews + 1
-                    });
-                    firebase.database().ref('users').orderByChild('email').equalTo(videoData.author).on('value', (snapshot) => { 
-                        snapshot.forEach((childSnap) => {
-                            this.setState({
-                                authorAvatar: childSnap.val().avatar
+                        videoTitle: videoData.title,
+                        videoDescription: videoData.description,
+                        videoAuthor: author,
+                        videoViews: videoData.views,
+                        videoLikes: videoData.likes,
+                        videoDislikes: videoData.dislikes,
+                        uploadDate: videoData.uploadDate,
+                        videoComments: videoComments,
+                        commentsAmount: videoData.commentsAmount
+                    }, () => {
+                        this.setState({videoComments: this.state.videoComments ? this.state.videoComments.reverse() : ''});
+                        firebase.database().ref('users').orderByChild('email').equalTo(videoData.author).on('value', (snapshot) => { 
+                            snapshot.forEach((childSnap) => {
+                                this.setState({
+                                    authorAvatar: childSnap.val().avatar
+                                });
                             });
                         });
                     });
-                });
+                }
             });
-        })
+        });
+        window.addEventListener('scroll', this.handleScroll);
         this.setState({id: id}, () => {
             axios.post('/api/get-video', {
                 id: this.state.id
             }).then((resp) => {
-                this.setState({
-                    videoURL: resp
-                });
-                firebase.database().ref('videos').orderByChild('id').equalTo(id).once('child_added', (snapshot) => {
-                    snapshot.ref.update({views: this.state.videoViews});
-                });
+                if (resp.data !== 'null') {
+                    this.setState({
+                        videoURL: resp,
+                        videoFound: true
+                    });
+                    firebase.database().ref('videos').orderByChild('id').equalTo(id).once('child_added', (snapshot) => {
+                        snapshot.ref.update({views: this.state.videoViews + 1});
+                    });
+                } else {
+                    this.setState({
+                        videoFound: false
+                    });
+                }
             });
         });
         firebase.auth().onAuthStateChanged((user) => {
@@ -105,6 +123,32 @@ class Watch extends Component {
                 });
             }
         });
+    }
+    componentWillMount() {
+        this._mounted = false;
+        window.removeEventListener('scroll', this.handleScroll);
+    }
+    handleScroll = () => {
+        const windowHeight = "innerHeight" in window ? window.innerHeight : document.documentElement.offsetHeight;
+        const body = document.body;
+        const html = document.documentElement;
+        const docHeight = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight,  html.scrollHeight, html.offsetHeight);
+        const windowBottom = windowHeight + window.pageYOffset;
+        let scrollNumber = 0;
+        if (windowBottom >= docHeight) {
+            this.setState({scrolled: this.state.scrolled + 1}, () => {
+                if (this.state.scrolled > 2) {
+                    scrollNumber += 11;
+                    this.setState({
+                        commentsPart: this.state.videoComments ? this.state.videoComments.slice(0,10+scrollNumber) : ''
+                    });
+                } else {
+                    this.setState({
+                        commentsPart: this.state.videoComments ? this.state.videoComments.slice(0,10) : '',
+                    });
+                }
+            });
+        }
     }
     handleClick = (type) => {
         firebase.auth().onAuthStateChanged((user) => {
@@ -209,13 +253,25 @@ class Watch extends Component {
             });
         }
     }
+    showMoreDescription = () => {
+        this.setState({showMore: !this.state.showMore});
+    }
     render() {
         return (
             <div>
+                <Helmet>
+                    <title>{this.state.videoTitle ? this.state.videoTitle + ' - Video site': 'Loading... - Video site'}</title>
+                </Helmet>
                 <div className="watch-video">
-                    <video id="video" src={this.state.videoURL ? this.state.videoURL.data : ''} width="1280px" height="720px" controls></video>
+                    {
+                        this.state.videoFound ? (
+                            <video id="video" src={this.state.videoURL ? this.state.videoURL.data : ''} width="1280px" height="720px" controls></video>
+                        ) : (
+                            <p>No video detected</p>
+                        )
+                    }
                 </div>
-                <div className="watch-video__info">
+                <div className={this.state.videoFound ? "watch-video__info" : 'no-video'}>
                     <p className="info__title">{this.state.videoTitle}</p>
                     <p className="info__views">{this.state.videoViews} views</p>
                     <div className="video__likes">
@@ -238,7 +294,10 @@ class Watch extends Component {
                             <p className="upload-date">{this.state.uploadDate}</p>
                         </div>
                     </div>
-                    <p className="info__description">{this.state.videoDescription}</p>
+                    <div className="info__description">
+                        <p className={this.state.showMore ? 'active ' : ''}>{this.state.videoDescription}</p>
+                        <label className={this.state.showMoreButton ? 'read-more' : 'button-disabled'}><input onChange={this.showMoreDescription} type="checkbox"></input>{this.state.showMore ? 'Show less' : 'Show more'}</label>
+                    </div>
                     <span className="line"></span>
                     <div className="watch-video__comments">
                         <p className="comments__amount">{this.state.commentsAmount} comments</p>
@@ -257,10 +316,10 @@ class Watch extends Component {
                         }
                         <div className="comments__all">
                             {
-                                this.state.videoComments ? (
-                                    this.state.videoComments.map((item) => {
+                                this.state.commentsPart ? (
+                                    this.state.commentsPart.map((item, index) => {
                                         return (
-                                            <div className="comments__comment">
+                                            <div key={index} className="comments__comment">
                                                 <img alt="" width="40px" height="40px" src={item.avatar}></img>
                                                 <div className="comment__content">
                                                     <p className="comment__author">{item.author.split("@")[0]}</p>

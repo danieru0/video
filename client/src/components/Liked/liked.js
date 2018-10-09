@@ -13,11 +13,11 @@ class Preloader extends Component {
     componentDidMount() {
         firebase.auth().onAuthStateChanged((user) => {
             firebase.database().ref('users').orderByChild('email').equalTo(user.email).on('value', (snapshot) => {
+                let newState = [];
                 snapshot.forEach((childSnap) => {
                     let userLikedVideos = childSnap.val().likes;
-                    let newState = [];
                     for (let i = 0; i < userLikedVideos.length; i++) {
-                        firebase.database().ref('/videos').orderByChild('id').equalTo(userLikedVideos[i]).on('value', (snapshot) => {
+                        firebase.database().ref('videos').orderByChild('id').equalTo(userLikedVideos[i]).on('value', (snapshot) => {
                             let videos = snapshot.val();
                             for (let item in videos) {
                                 newState.push({
@@ -32,11 +32,9 @@ class Preloader extends Component {
                             }
                         });
                     }
-                    this.setState({
-                        videos: newState
-                    }, () => {
-                        console.log(this.state.videos);
-                    });
+                });
+                this.setState({
+                    videos: newState
                 });
             });
         });

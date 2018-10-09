@@ -36,6 +36,8 @@ app.post('/api/get-video', (req, res) => {
   dbx.filesGetTemporaryLink({path: '/videos/'+req.body.id})
     .then((resp) => {
       res.json(resp.link);
+    }).catch((err) => {
+      res.json('null');
     });
 });
 

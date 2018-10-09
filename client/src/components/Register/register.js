@@ -64,7 +64,8 @@ class Register extends Component {
                 avatar: 'https://image.flaticon.com/icons/svg/149/149071.svg',
                 likes: ['zero'],
                 dislikes: ['zero'],
-                description: `Hello! My name is: ${this.state.email.split("@")[0]}`
+                description: `Hello! My name is: ${this.state.email.split("@")[0]}`,
+                adminAccess: false
             });
             window.location.href = '/';
         }).catch((error) => {

@@ -23,6 +23,7 @@ class Yourprofile extends Component {
             clickedVideoId: null,
             active: '',
             submitted: false,
+            submittedEditVideo: false,
             submittedMessage: '',
             oldPassword: null,
             newPassword: null,
@@ -36,7 +37,6 @@ class Yourprofile extends Component {
     }
     componentDidMount() {
         firebase.auth().onAuthStateChanged((user) => {
-            let newState = [];
             if (user) {
                 firebase.database().ref('users').orderByChild('email').equalTo(user.email).on('value', (snapshot) => {
                     snapshot.forEach(childSnap => {
@@ -49,6 +49,7 @@ class Yourprofile extends Component {
                     });
                 });
                 firebase.database().ref('videos').orderByChild('author').equalTo(user.email).on('value', (snapshot) => {
+                    let newState = [];
                     let videos = snapshot.val();
                     let shortedTitle = '';
                     for (let item in videos) {
@@ -67,8 +68,8 @@ class Yourprofile extends Component {
                             description: videos[item].description
                         });
                     }
+                    this.setState({userVideos: newState});
                 });
-                this.setState({userVideos: newState});
             }
         });
     }
@@ -104,9 +105,9 @@ class Yourprofile extends Component {
         });
     }
     handleSubmitEdit = () => {
-        if (!this.state.submitted) {
+        if (!this.state.submittedEditVideo) {
             if (this.state.clickedVideoId) {
-                this.setState({submitted: true});
+                this.setState({submittedEditVideo: true});
                 if (this.state.editMiniature) {
                     let newName = this.state.clickedVideoId.substring(0, this.state.clickedVideoId.lastIndexOf('.'));
                     let blob = this.state.editMiniature.slice(0, -1, 'image/png');
@@ -117,7 +118,7 @@ class Yourprofile extends Component {
                                 title: this.state.editTitle,
                                 description: this.state.editDescription
                              });
-                             this.setState({submitted: false, submittedMessage: 'Video has been edited!'});
+                             this.setState({submittedEditVideo: false, submittedMessage: 'Video has been edited!'});
                         });
                     });
                 } else {
@@ -125,8 +126,9 @@ class Yourprofile extends Component {
                         snapshot.ref.update({
                             title: this.state.editTitle,
                             description: this.state.editDescription
+                         }).then(() => {
+                            this.setState({submittedEditVideo: false, submittedMessage: 'Video has been edited!'});
                          });
-                         this.setState({submitted: false, submittedMessage: 'Video has been edited!'});
                     });
                 }
             }
@@ -166,7 +168,6 @@ class Yourprofile extends Component {
     }
     saveSettings = () => {
         if (this.state.userImg) {
-            console.log(this.state.userImg);
             let newFile = new File([this.state.userImg], this.state.userEmail, {type: 'image/png'});
             firebase.storage().ref().child('avatars/'+newFile.name).put(newFile).then((snapshot) => {
                 snapshot.ref.getDownloadURL().then((url) => {
@@ -218,82 +219,84 @@ class Yourprofile extends Component {
     deleteAccount = () => {
         const confirm = window.confirm('Are you really want delete your account?');
         if (confirm === true) {
-            let credential = firebase.auth.EmailAuthProvider.credential(
-                this.state.userEmail,
-                this.state.deleteAccountPassword
-            );
-            firebase.auth().onAuthStateChanged((user) => {
-                if (user) {
-                    user.reauthenticateWithCredential(credential).then(() => {
-                        this.setState({removingAccountProcess: 'process'});
-                        let videosArray = [];
-                        //removing users videos
-                        firebase.database().ref('videos').orderByChild('author').equalTo(this.state.userEmail).on('value', (snapshot) => {
-                            let videos = snapshot.val();
-                            for (let item in videos) {
-                                videosArray.push(videos[item].id);
-                            }
-                        });
-                        for (let i = 0; i < videosArray.length; i++) {
-                            axios.post('/api/remove-video', {
-                                id: videosArray[i]
+            if (this.state.deleteAccountPassword) {
+                let credential = firebase.auth.EmailAuthProvider.credential(
+                    this.state.userEmail,
+                    this.state.deleteAccountPassword
+                );
+                firebase.auth().onAuthStateChanged((user) => {
+                    if (user) {
+                        user.reauthenticateWithCredential(credential).then(() => {
+                            this.setState({removingAccountProcess: 'process'});
+                            let videosArray = [];
+                            //removing users videos
+                            firebase.database().ref('videos').orderByChild('author').equalTo(this.state.userEmail).on('value', (snapshot) => {
+                                let videos = snapshot.val();
+                                for (let item in videos) {
+                                    videosArray.push(videos[item].id);
+                                }
                             });
-                            firebase.database().ref('videos').orderByChild('id').equalTo(videosArray[i]).once('child_added', (snapshot) => {
+                            for (let i = 0; i < videosArray.length; i++) {
+                                axios.post('/api/remove-video', {
+                                    id: videosArray[i]
+                                });
+                                firebase.database().ref('videos').orderByChild('id').equalTo(videosArray[i]).once('child_added', (snapshot) => {
+                                    snapshot.ref.remove();
+                                });
+                                firebase.storage().ref('miniatures').child(videosArray[i].substring(0, videosArray[i].lastIndexOf('.'))).delete();
+                            }
+                            //removing likes from videos
+                            firebase.database().ref('users').orderByChild('email').equalTo(this.state.userEmail).on('value', (snapshot) => {
+                                let likes = '';
+                                snapshot.forEach(item => {
+                                    likes = item.val().likes;
+                                });
+                                for (let i = 0; i < likes.length; i++) {
+                                    if (likes[i] !== 'zero') {
+                                        firebase.database().ref('videos').orderByChild('id').equalTo(likes[i]).once('child_added', (snapshot) => {
+                                            let videoLikes = snapshot.val().likes;
+                                            snapshot.ref.update({
+                                                likes: videoLikes - 1
+                                            });
+                                        });
+                                    }
+                                }
+                            });
+                            //removing dislikes from videos
+                            firebase.database().ref('users').orderByChild('email').equalTo(this.state.userEmail).on('value', (snapshot) => {
+                                let dislikes = '';
+                                snapshot.forEach(item => {
+                                    dislikes = item.val().dislikes;
+                                });
+                                for (let i = 0; i < dislikes.length; i++) {
+                                    if (dislikes[i] !== 'zero') {
+                                        firebase.database().ref('videos').orderByChild('id').equalTo(dislikes[i]).once('child_added', (snapshot) => {
+                                            let videoDislikes = snapshot.val().dislikes;
+                                            snapshot.ref.update({
+                                                dislikes: videoDislikes - 1
+                                            });
+                                        });
+                                    }
+                                }
+                            });
+                            firebase.database().ref('users').orderByChild('email').equalTo(this.state.userEmail).once('child_added', (snapshot) => {
                                 snapshot.ref.remove();
                             });
-                            firebase.storage().ref('miniatures').child(videosArray[i].substring(0, videosArray[i].lastIndexOf('.'))).delete();
-                        }
-                        //removing likes from videos
-                        firebase.database().ref('users').orderByChild('email').equalTo(this.state.userEmail).on('value', (snapshot) => {
-                            let likes = '';
-                            snapshot.forEach(item => {
-                                likes = item.val().likes;
+                            firebase.storage().ref('avatars').child(this.state.userEmail).getDownloadURL().then(() => {
+                                firebase.storage().ref('avatars').child(this.state.userEmail).delete();
+                            }).catch(() => {
+                                '';
                             });
-                            for (let i = 0; i < likes.length; i++) {
-                                if (likes[i] !== 'zero') {
-                                    firebase.database().ref('videos').orderByChild('id').equalTo(likes[i]).once('child_added', (snapshot) => {
-                                        let videoLikes = snapshot.val().likes;
-                                        snapshot.ref.update({
-                                            likes: videoLikes - 1
-                                        });
-                                    });
-                                }
-                            }
-                        });
-                        //removing dislikes from videos
-                        firebase.database().ref('users').orderByChild('email').equalTo(this.state.userEmail).on('value', (snapshot) => {
-                            let dislikes = '';
-                            snapshot.forEach(item => {
-                                dislikes = item.val().dislikes;
+                            user.delete();
+                            this.setState({removingAccountProcess: ''});
+                        }).catch((err) => {
+                            this.setState({
+                                settingsMessageDeleteAccount: 'Wrong password!'
                             });
-                            for (let i = 0; i < dislikes.length; i++) {
-                                if (dislikes[i] !== 'zero') {
-                                    firebase.database().ref('videos').orderByChild('id').equalTo(dislikes[i]).once('child_added', (snapshot) => {
-                                        let videoDislikes = snapshot.val().dislikes;
-                                        snapshot.ref.update({
-                                            dislikes: videoDislikes - 1
-                                        });
-                                    });
-                                }
-                            }
                         });
-                        firebase.database().ref('users').orderByChild('email').equalTo(this.state.userEmail).once('child_added', (snapshot) => {
-                            snapshot.ref.remove();
-                        });
-                        firebase.storage().ref('avatars').child(this.state.userEmail).getDownloadURL().then(() => {
-                            firebase.storage().ref('avatars').child(this.state.userEmail).delete();
-                        }).catch(() => {
-                            '';
-                        });
-                        user.delete();
-                        this.setState({removingAccountProcess: ''});
-                    }).catch((err) => {
-                        this.setState({
-                            settingsMessageDeleteAccount: 'Wrong password!'
-                        });
-                    });
-                }
-            });
+                    }
+                });
+            }
         }
     }
     render() {
@@ -356,10 +359,10 @@ class Yourprofile extends Component {
                                 <div className="videos__edit__buttons">
                                     <div>
                                         <button onClick={this.handleSubmitRemove} className="button button-primary">Remove video</button>
-                                        <button onClick={this.handleSubmitEdit} className="button button-primary">Edit video</button>
+                                        <button onClick={() => this.handleSubmitEdit()} className="button button-primary">Edit video</button>
                                     </div>
                                     {
-                                        this.state.submitted ? (
+                                        this.state.submittedEditVideo ? (
                                             <Preloader />
                                         ) : (
                                             <p>{this.state.submittedMessage}</p>

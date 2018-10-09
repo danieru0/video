@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Helmet } from 'react-helmet';
 import './head.css';
 import firebase from '../../config/firebase';
 import Video from '../Video/video';
@@ -39,6 +40,9 @@ class Head extends Component {
     render() {
         return (
             <main className="head">
+                <Helmet>
+                    <title>Video site</title>
+                </Helmet>
                 <div className="wrapper">
                     {   
                         this.state.videos ? (

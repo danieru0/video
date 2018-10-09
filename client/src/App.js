@@ -10,14 +10,14 @@ import Watch from './components/Watch/watch';
 import Liked from './components/Liked/liked';
 import Search from './components/Search/search';
 import YourProfile from './components/YourProfile/yourprofile';
+import AdminPanel from './components/AdminPanel/adminpanel';
 import firebase from './config/firebase';
 
 class App extends Component {
   constructor() {
     super();
     this.state = {
-      user: null,
-      logged: false
+      user: null
     };
   }
   componentWillMount() {
@@ -57,6 +57,7 @@ class App extends Component {
               <Route path="/liked" render={() => (this.isLoggedIn() ? <Liked />: <Redirect to="/"/>)} />
               <Route path="/search/:value" component={Search} />
               <Route path="/profile" render={() => (this.isLoggedIn() ? <YourProfile /> : <Redirect to="/"/>)} />
+              <Route path="/admin" component={AdminPanel} />
             </Switch>
           </div>
         </BrowserRouter>
