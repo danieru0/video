@@ -57,17 +57,19 @@ class Register extends Component {
         e.preventDefault();
         this.setState({formSubmitted: 'success'});
         firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password).then(() => {
-            let newUserFirebase = firebase.database().ref('users/').push();
-            newUserFirebase.set({
-                email: this.state.email,
-                nick: this.state.email.split("@")[0],
-                avatar: 'https://image.flaticon.com/icons/svg/149/149071.svg',
-                likes: ['zero'],
-                dislikes: ['zero'],
-                description: `Hello! My name is: ${this.state.email.split("@")[0]}`,
-                adminAccess: false
+            firebase.auth().onAuthStateChanged((user) => {
+                let newUserFirebase = firebase.database().ref('users/'+user.uid);
+                newUserFirebase.set({
+                    email: this.state.email,
+                    nick: this.state.email.split("@")[0],
+                    avatar: 'https://image.flaticon.com/icons/svg/149/149071.svg',
+                    likes: ['zero'],
+                    dislikes: ['zero'],
+                    description: `Hello! My name is: ${this.state.email.split("@")[0]}`,
+                    adminAccess: false
+                });
+                window.location.href = '/';
             });
-            window.location.href = '/';
         }).catch((error) => {
             console.log(error);
             this.setState({formSubmitted: 'Fail: Email is taken!'});

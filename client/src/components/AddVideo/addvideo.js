@@ -21,39 +21,41 @@ class Add extends Component {
     getVideo = (e) => {
         const name = e.target.name;
         const file = e.target.files[0];
-        switch(name) {
-            case 'video':
-                let fileFormat = file.type.split('/')[1];
-                if (fileFormat === 'mp4') {
-                    this.setState({
-                        video: file,
-                        videoLink: window.URL.createObjectURL(file)
-                    }, () => {
-                        if (!this.state.video) { //making sure that video is not null
-                            this.setState({
-                                video: file
-                            })
-                        } 
-                    });
-                } else {
-                    alert('Wrong file type! Only mp4');
-                    e.target.value = null;
-                }
-                break;
-            case 'miniature':
-                this.setState({
-                    videoMiniature: file,
-                    videoMiniatureLink: window.URL.createObjectURL(file)
-                }, () => {
-                    if (!this.state.videoMiniature) { //making sure that videoMiniature is not null
+        if (file) {
+            switch(name) {
+                case 'video':
+                    let fileFormat = file.type.split('/')[1];
+                    if (fileFormat === 'mp4') {
                         this.setState({
-                            videoMiniature: file
-                        })
+                            video: file,
+                            videoLink: window.URL.createObjectURL(file)
+                        }, () => {
+                            if (!this.state.video) { //making sure that video is not null
+                                this.setState({
+                                    video: file
+                                })
+                            } 
+                        });
+                    } else {
+                        alert('Wrong file type! Only mp4');
+                        e.target.value = null;
                     }
-                });
-                break;
-            default:
-                break;
+                    break;
+                case 'miniature':
+                    this.setState({
+                        videoMiniature: file,
+                        videoMiniatureLink: window.URL.createObjectURL(file)
+                    }, () => {
+                        if (!this.state.videoMiniature) { //making sure that videoMiniature is not null
+                            this.setState({
+                                videoMiniature: file
+                            })
+                        }
+                    });
+                    break;
+                default:
+                    break;
+            }
         }
     } 
     getDuration = () => {
@@ -75,6 +77,10 @@ class Add extends Component {
             if (this.state.video) {
                 if (!this.state.videoTitle) {
                     alert('Video title is required!');
+                    return;
+                }
+                if (!this.state.videoMiniature) {
+                    alert('Video miniature is required!');
                     return;
                 }
                 this.setState({

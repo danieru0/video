@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import firebase from '../../config/firebase';
 import './sidenav.css';
 
 class SideNav extends Component {
@@ -7,8 +8,14 @@ class SideNav extends Component {
         super();
         this.state = {
             menu: false,
-            class: ''
+            class: '',
+            user: null
         };
+    }
+    componentDidMount() {
+        firebase.auth().onAuthStateChanged((user) => {
+            this.setState({user: user});
+        })
     }
     showMenu = () => {
         if (this.state.menu === false) {
@@ -36,9 +43,15 @@ class SideNav extends Component {
                     <span className="line"></span>
                     <ul className="sidenav__list">
                         <li className="sidenav__item">
-                            <Link to="/liked">
-                                <span className="fa fa-thumbs-up"></span>Liked videos
-                            </Link>
+                            {
+                                this.state.user ? (
+                                    <Link to="/liked">
+                                        <span className="fa fa-thumbs-up"></span>Liked videos
+                                    </Link>
+                                ) : (
+                                    ''
+                                )
+                            }
                         </li>
                     </ul>
                 </div>

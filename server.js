@@ -20,7 +20,7 @@ app.use(flash());
 require('isomorphic-fetch');
 const Dropbox = require('dropbox').Dropbox;
 const dropboxToken = require('./config/dropbox');
-const dbx = new Dropbox({ dropboxToken });
+const dbx = new Dropbox({ accessToken: dropboxToken.accessToken });
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {

@@ -32,11 +32,11 @@ class Login extends Component {
         switch(fieldName) {
             case 'email':
                 emailValid = value.length >= 1;
-                emailError = emailValid ? null : 'Email is important!';
+                emailError = emailValid ? null : 'Email is required!';
                 break;
             case 'password':
                 passwordValid = value.length >= 1;
-                passwordError = passwordValid? null : 'Password is important!';
+                passwordError = passwordValid? null : 'Password is required!';
                 break; 
             default:
                 break;

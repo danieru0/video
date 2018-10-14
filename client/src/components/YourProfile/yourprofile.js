@@ -36,16 +36,19 @@ class Yourprofile extends Component {
         }
     }
     componentDidMount() {
+        this._mounted = true;
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
                 firebase.database().ref('users').orderByChild('email').equalTo(user.email).on('value', (snapshot) => {
                     snapshot.forEach(childSnap => {
-                        this.setState({
-                            userImgLink: childSnap.val().avatar,
-                            userImgLinkProfile: childSnap.val().avatar,
-                            userEmail: childSnap.val().email,
-                            userDescription: childSnap.val().description
-                        });
+                        if (this._mounted) {
+                            this.setState({
+                                userImgLink: childSnap.val().avatar,
+                                userImgLinkProfile: childSnap.val().avatar,
+                                userEmail: childSnap.val().email,
+                                userDescription: childSnap.val().description
+                            });
+                        }
                     });
                 });
                 firebase.database().ref('videos').orderByChild('author').equalTo(user.email).on('value', (snapshot) => {
@@ -68,10 +71,15 @@ class Yourprofile extends Component {
                             description: videos[item].description
                         });
                     }
-                    this.setState({userVideos: newState});
+                    if (this._mounted) {
+                        this.setState({userVideos: newState});
+                    }
                 });
             }
         });
+    }
+    componentWillUnmount() {
+        this._mounted = false;
     }
     handleClick = (clicked, element) => {
         this.setState({
@@ -355,6 +363,7 @@ class Yourprofile extends Component {
                                 <div className="videos__edit__miniature">
                                     <img alt="" src={this.state.editMiniatureLink} width="320px" height="240px"></img>
                                     <input onChange={this.getMiniature} name="miniature" type="file" accept="image/*"></input>
+                                    <a href={'/watch/'+this.state.clickedVideoId}>Go to video</a>
                                 </div>
                                 <div className="videos__edit__buttons">
                                     <div>

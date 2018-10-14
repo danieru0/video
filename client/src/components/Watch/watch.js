@@ -46,7 +46,9 @@ class Watch extends Component {
                     videoComments = videoData.comments.filter(function(n){return n !== undefined});
                 }
                 if (videoData.description.length > 100) {
-                    this.setState({showMoreButton: true});
+                    if (this._mounted) {
+                        this.setState({showMoreButton: true});
+                    }
                 }
                 if (this._mounted) {
                     this.setState({
@@ -58,73 +60,79 @@ class Watch extends Component {
                         videoDislikes: videoData.dislikes,
                         uploadDate: videoData.uploadDate,
                         videoComments: videoComments,
-                        commentsAmount: videoData.commentsAmount
+                        commentsAmount: videoData.commentsAmount 
                     }, () => {
-                        this.setState({videoComments: this.state.videoComments ? this.state.videoComments.reverse() : ''});
-                        firebase.database().ref('users').orderByChild('email').equalTo(videoData.author).on('value', (snapshot) => { 
-                            snapshot.forEach((childSnap) => {
-                                this.setState({
-                                    authorAvatar: childSnap.val().avatar
+                        if (this._mounted) {
+                            this.setState({videoComments: this.state.videoComments ? this.state.videoComments.reverse() : ''});
+                            firebase.database().ref('users').orderByChild('email').equalTo(videoData.author).on('value', (snapshot) => { 
+                                snapshot.forEach((childSnap) => {
+                                    this.setState({
+                                        authorAvatar: childSnap.val().avatar
+                                    });
                                 });
                             });
-                        });
+                        }
                     });
                 }
             });
         });
         window.addEventListener('scroll', this.handleScroll);
-        this.setState({id: id}, () => {
-            axios.post('/api/get-video', {
-                id: this.state.id
-            }).then((resp) => {
-                if (resp.data !== 'null') {
-                    this.setState({
-                        videoURL: resp,
-                        videoFound: true
-                    });
-                    firebase.database().ref('videos').orderByChild('id').equalTo(id).once('child_added', (snapshot) => {
-                        snapshot.ref.update({views: this.state.videoViews + 1});
-                    });
-                } else {
-                    this.setState({
-                        videoFound: false
-                    });
-                }
+        if (this._mounted) {
+            this.setState({id: id}, () => {
+                axios.post('/api/get-video', {
+                    id: this.state.id
+                }).then((resp) => {
+                    if (resp.data !== 'null') {
+                        this.setState({
+                            videoURL: resp,
+                            videoFound: true
+                        });
+                        firebase.database().ref('videos').orderByChild('id').equalTo(id).once('child_added', (snapshot) => {
+                            snapshot.ref.update({views: this.state.videoViews + 1});
+                        });
+                    } else {
+                        this.setState({
+                            videoFound: false
+                        });
+                    }
+                });
             });
-        });
+        }
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
                 firebase.database().ref('users').orderByChild('email').equalTo(user.email).on('value', (snapshot) => {
                     snapshot.forEach((childSnap) => {
-                        this.setState({
-                            userLikes: childSnap.val().likes,
-                            userDislikes: childSnap.val().dislikes,
-                            userAvatar: childSnap.val().avatar,
-                            user: user
-                        }, () => {
-                            let ifLiked = false;
-                            let ifDisliked = false;
-                            this.state.userLikes.forEach(element => {
-                                if (element === this.state.id) {
-                                    ifLiked = true;
-                                }
-                            });
-                            this.state.userDislikes.forEach(element => {
-                                if (element === this.state.id) {
-                                    ifDisliked = true;
-                                }
-                            });
+                        if (this._mounted) {
                             this.setState({
-                                userLiked: ifLiked,
-                                userDisliked: ifDisliked
+                                userLikes: childSnap.val().likes,
+                                userDislikes: childSnap.val().dislikes,
+                                userAvatar: childSnap.val().avatar,
+                                user: user
+                            }, () => {
+                                let ifLiked = false;
+                                let ifDisliked = false;
+                                this.state.userLikes.forEach(element => {
+                                    if (element === this.state.id) {
+                                        ifLiked = true;
+                                    }
+                                });
+                                this.state.userDislikes.forEach(element => {
+                                    if (element === this.state.id) {
+                                        ifDisliked = true;
+                                    }
+                                });
+                                this.setState({
+                                    userLiked: ifLiked,
+                                    userDisliked: ifDisliked
+                                });
                             });
-                        });
+                        }
                     });
                 });
             }
         });
     }
-    componentWillMount() {
+    componentWillUnmount() {
         this._mounted = false;
         window.removeEventListener('scroll', this.handleScroll);
     }

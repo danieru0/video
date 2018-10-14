@@ -28,7 +28,11 @@ class Adminpanel extends Component {
             clickedVideoId: null
         }
     }
+    componentWillUnmount() {
+        this._mounted = false;
+    }
     componentWillMount() {
+        this._mounted = true;
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
                 firebase.database().ref('users').orderByChild('email').equalTo(user.email).on('value', snapshot => {
@@ -36,7 +40,9 @@ class Adminpanel extends Component {
                         if (childSnap.val().adminAccess === false) {
                             document.location.href = '/';
                         } else {
-                            this.setState({loaded: true});
+                            if (this._mounted) {
+                                this.setState({loaded: true});
+                            }
                         }
                     });
                 });
@@ -49,7 +55,9 @@ class Adminpanel extends Component {
                             email: items[item].email
                         });
                     }
-                    this.setState({users: users});
+                    if (this._mounted) {
+                        this.setState({users: users});
+                    }
                 });
                 firebase.database().ref('videos').once('value').then(snapshot => {
                     let items = snapshot.val();
@@ -65,7 +73,9 @@ class Adminpanel extends Component {
                             id: items[item].id
                         });
                     }
-                    this.setState({videos: videos});
+                    if (this._mounted) {
+                        this.setState({videos: videos});
+                    }
                 });
             } else {
                 document.location.href = '/';
