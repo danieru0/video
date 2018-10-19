@@ -60,7 +60,7 @@ class Register extends Component {
             firebase.auth().onAuthStateChanged((user) => {
                 let newUserFirebase = firebase.database().ref('users/'+user.uid);
                 newUserFirebase.set({
-                    email: this.state.email,
+                    email: user.email,
                     nick: this.state.email.split("@")[0],
                     avatar: 'https://image.flaticon.com/icons/svg/149/149071.svg',
                     likes: ['zero'],

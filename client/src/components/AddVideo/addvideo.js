@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import firebase from '../../config/firebase';
+import { Helmet } from 'react-helmet';
 import Preloader from '../Preloader/preloader';
 import './addvideo.css';
 
@@ -149,6 +150,9 @@ class Add extends Component {
     render() {
         return (
             <div className="center add-video">
+                <Helmet>
+                    <title>Add video - Video site</title>
+                </Helmet>
                 <h2>Add video</h2>
                 <form className="form-add" method="post" onSubmit={this.handleSubmit}>
                     <div className="inputs-group video-preview">

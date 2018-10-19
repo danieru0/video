@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Video from '../Video/video';
+import { Helmet } from 'react-helmet';
 import firebase from '../../config/firebase';
 import './liked.css';
 
@@ -30,11 +31,11 @@ class Preloader extends Component {
                                     uploadDate: videos[item].uploadDate
                                 });
                             }
+                            this.setState({
+                                videos: newState
+                            });
                         });
                     }
-                });
-                this.setState({
-                    videos: newState
                 });
             });
         });
@@ -42,6 +43,9 @@ class Preloader extends Component {
     render() {
         return (
             <div className="head">
+                <Helmet>
+                    <title>Liked videos - Video site</title>
+                </Helmet>
                 <div className="wrapper">
                     {
                         this.state.videos ? (

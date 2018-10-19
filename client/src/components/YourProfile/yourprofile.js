@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import firebase from '../../config/firebase';
 import axios from 'axios';
+import { Helmet } from 'react-helmet';
 import './yourprofile.css';
 import Preloader from '../Preloader/preloader';
 
@@ -310,6 +311,9 @@ class Yourprofile extends Component {
     render() {
         return (
             <div className="head yourprofile">
+                <Helmet>
+                    <title>Your profile - Video site</title>
+                </Helmet>
             <div className={"account-removing "+this.state.removingAccountProcess}>
                 <p>Deleting account...</p>
             </div>

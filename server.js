@@ -1,7 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const flash = require('connect-flash');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
@@ -14,8 +13,6 @@ app.use(express.static(path.join(__dirname, 'client/build')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-
-app.use(flash());
 
 require('isomorphic-fetch');
 const Dropbox = require('dropbox').Dropbox;

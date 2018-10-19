@@ -1,7 +1,7 @@
 # Video site
 
 Site where you can watch other people videos and add your own.
-(gif here)
+![video site images](https://i.imgur.com/AfpDhEw.gif)
 
 ## Futures
 
@@ -47,4 +47,4 @@ $ cd..
 npm run dev
 ```
 7. Everything should work now!
-8. You can check working version here: (link)
+8. You can check working version here: https://immense-spire-59660.herokuapp.com/ (it works weird on heroku, uploading videos don't work);

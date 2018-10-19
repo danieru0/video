@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Helmet } from 'react-helmet';
 import Video from '../Video/video';
 import firebase from '../../config/firebase';
 
@@ -35,6 +36,9 @@ class Search extends Component {
     render() {
         return (
             <div className="head">
+                <Helmet>
+                    <title>Search - Video site</title>
+                </Helmet>
                 <div className="wrapper">
                     {
                         this.state.filteredVideos ? (
